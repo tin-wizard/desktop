@@ -216,4 +216,12 @@ if (process.env.CI_MAC_ZIP_ONLY) {
     config.mac.gatekeeperAssess = false;
 }
 
+// The TIN fork has no Apple Developer signing credentials, so releases are built unsigned.
+// CSC_IDENTITY_AUTO_DISCOVERY=false tells electron-builder to skip codesigning; hardened
+// runtime and Gatekeeper assessment require a valid signature and must be disabled.
+if (process.env.CSC_IDENTITY_AUTO_DISCOVERY === 'false') {
+    config.mac.hardenedRuntime = false;
+    config.mac.gatekeeperAssess = false;
+}
+
 module.exports = config;

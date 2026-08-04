@@ -1,7 +1,7 @@
 {
   "name": "tinconnect-desktop",
   "productName": "TIN Connect",
-  "version": "6.3.0-rc.3",
+  "version": "6.3.0-rc.4",
   "description": "The Intelligent Network Communications Platform",
   "main": "dist/index.js",
   "author": "The Intelligent Network <noreply@tinconnect.com>",
@@ -47,7 +47,7 @@
     "package:windows": "run-s package:windows-*",
     "package:windows-zip": "npm run build-prod && electron-builder --win zip --x64 --arm64 --publish=never",
     "package:windows-msi": "npm run build-prod && electron-builder --win msi --x64 --arm64 --publish=never",
-    "package:mac": "npm run build-prod && electron-builder --config.mac.provisioningProfile=./mac.provisionProfile --mac --x64 --arm64 --publish=never",
+    "package:mac": "npm run build-prod && electron-builder --mac --x64 --arm64 --publish=never",
     "package:mac-with-universal": "npm run package:mac -- --universal",
     "package:mas": "npm run build-prod-mas && electron-builder --mac mas --universal --publish=never",
     "package:mas-dev": "npm run build-prod-mas && electron-builder --mac mas-dev --universal --publish=never",
