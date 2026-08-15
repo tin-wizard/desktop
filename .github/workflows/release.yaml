@@ -54,7 +54,7 @@ jobs:
         run: |
           wget -qO - https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_22.04/Release.key | sudo apt-key add -
           wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.20.1/yq_linux_amd64 && chmod a+x /usr/local/bin/yq
-          sudo apt-get update || true && sudo apt-get install -y ca-certificates libxtst-dev libpng++-dev gcc-aarch64-linux-gnu g++-aarch64-linux-gnu jq icnsutils graphicsmagick tzdata flatpak flatpak-builder
+          sudo apt-get update || true && sudo apt-get install -y ca-certificates libxtst-dev libpng++-dev gcc-aarch64-linux-gnu g++-aarch64-linux-gnu jq icnsutils graphicsmagick tzdata flatpak flatpack-builder
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           sudo flatpak install -y --noninteractive flathub org.freedesktop.Platform/x86_64/25.08 org.freedesktop.Sdk/x86_64/25.08 org.electronjs.Electron2.BaseApp/x86_64/25.08 org.freedesktop.Platform/aarch64/25.08 org.freedesktop.Sdk/aarch64/25.08 org.electronjs.Electron2.BaseApp/aarch64/25.08
           npm ci
@@ -153,7 +153,13 @@ jobs:
           CSC_LINK: ${{ secrets.MM_DESKTOP_MAC_INSTALLER_CSC_LINK }}
           MAC_PROFILE: ${{ secrets.MM_DESKTOP_MAC_INSTALLER_DMG_PROFILE }}
         run: |
-          echo $MAC_PROFILE | base64 -D > ./mac.provisionprofile
+          if [ -n "$MAC_PROFILE" ]; then
+            echo "Provisioning profile found, decoding..."
+            echo "$MAC_PROFILE" | base64 -D > ./mac.provisionprofile
+          else
+            echo "No provisioning profile set (not needed for Developer ID signing)"
+            touch ./mac.provisionprofile
+          fi
           zsh -c 'echo -n $APPLE_API_KEY_RAW > ./key.p8'
           mkdir -p ./build/macos-release
           npm run package:mac-with-universal
@@ -221,7 +227,7 @@ jobs:
 
       - name: release/publish-release
         env:
-          GITHUB_TOKEN: ${{ secrets.MATTERMOST_BUILD_GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=$(jq -r .version package.json)
           ./scripts/generate_release_markdown.sh ${VERSION} > release-notes.md
