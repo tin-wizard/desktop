@@ -19,7 +19,7 @@ PRERELEASE=""
 [[ "$VERSION" == *-* ]] && PRERELEASE=" — Pre-release"
 
 cat <<MD
-**TIN Desktop ${VERSION}${PRERELEASE}** — fork of Mattermost Desktop, pre-configured to connect to your **TIN** workspace at [https://mattermost.tin.info](https://mattermost.tin.info).
+**TIN Desktop ${VERSION}${PRERELEASE}** — fork of Mattermost Desktop, pre-configured to connect to your **TIN** workspace at [https://chat.tin.info](https://chat.tin.info).
 
 For a per-arch installer that auto-detects Apple Silicon vs Intel, visit [https://tin.info/download](https://tin.info/download). The asset tables below mirror what's served there.
 
