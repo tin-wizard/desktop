@@ -44,7 +44,7 @@ export default function createHelpMenu(): MenuItemConstructorOptions {
     const academyLink = Config.academyLink;
     if (isHttpLink(academyLink)) {
         submenu.push({
-            label: localizeMessage('main.menus.app.help.academy', 'Mattermost Academy'),
+            label: localizeMessage('main.menus.app.help.academy', 'Online Academy'),
             click() {
                 shell.openExternal(academyLink);
             },
