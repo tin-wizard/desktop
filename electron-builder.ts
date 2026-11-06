@@ -67,7 +67,7 @@ const config = {
     afterSign: 'scripts/aftersign.js',
     deb: {
         artifactName: '${version}/${name}_${version}-1_${arch}.${ext}',
-        synopsis: 'Mattermost Desktop App',
+        synopsis: 'TIN Connect Desktop App',
         depends: [
             'libnotify4',
             'libxtst6',
@@ -133,7 +133,7 @@ const config = {
         extendInfo: {
             NSMicrophoneUsageDescription: 'Microphone access is used to capture audio for voice communication and recordings.',
             NSCameraUsageDescription: 'Camera access is used to capture video for video conferencing and recordings.',
-            NSFocusStatusUsageDescription: 'Focus status is used by Mattermost to determine whether to send notifications or not.',
+            NSFocusStatusUsageDescription: 'Focus status is used by TIN Connect to determine whether to send notifications or not.',
             LSFileQuarantineEnabled: true,
         },
         ...getMacVersions(),
