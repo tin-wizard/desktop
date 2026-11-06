@@ -48,7 +48,7 @@ export class I18nManager {
     };
 
     getAvailableLanguages = () => {
-        return Object.keys(languages);
+        return Object.keys(this.getLanguages());
     };
 
     isLanguageAvailable = (locale: string) => {
