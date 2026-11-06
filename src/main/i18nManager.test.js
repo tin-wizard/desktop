@@ -21,13 +21,14 @@ describe('main/i18nManager', () => {
         expect(i18n.currentLanguage.value).toBe('en');
     });
 
-    it('should set locale only if available', () => {
+    it('should only offer English', () => {
         const i18n = new I18nManager();
 
-        expect(i18n.setLocale('fr')).toBe(true);
-        expect(i18n.currentLanguage.value).toBe('fr');
+        expect(i18n.getAvailableLanguages()).toEqual(['en']);
+        expect(i18n.setLocale('en')).toBe(true);
+        expect(i18n.setLocale('fr')).toBe(false);
         expect(i18n.setLocale('zz')).toBe(false);
-        expect(i18n.currentLanguage.value).toBe('fr');
+        expect(i18n.currentLanguage.value).toBe('en');
     });
 });
 
