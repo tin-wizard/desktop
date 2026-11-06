@@ -42,8 +42,9 @@ export class I18nManager {
         return false;
     };
 
-    getLanguages = () => {
-        return languages;
+    // TIN Connect ships in English only: the other translations still name Mattermost.
+    getLanguages = (): Record<string, Language> => {
+        return {en: languages.en};
     };
 
     getAvailableLanguages = () => {
