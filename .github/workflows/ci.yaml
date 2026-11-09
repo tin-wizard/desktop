@@ -9,8 +9,47 @@ defaults:
 env:
   TERM: xterm
 
+# A newer push to the same PR cancels the older run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
+  # Docs-only and workflow-only changes skip the builds (scripts/ci-changes.sh).
+  # Anything unexpected runs everything: the gates below compare with != 'false'.
+  changes:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.classify.outputs.code }}
+    steps:
+      - name: ci/checkout-repo
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+      - name: ci/test-classifier
+        run: bash scripts/ci-changes.test.sh
+      - name: ci/classify
+        id: classify
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if files=$(git diff --name-only "$BASE" HEAD 2>/dev/null); then :; else files='*'; fi
+          out=$(printf '%s\n' "$files" | bash scripts/ci-changes.sh) || out=''
+          if [[ "$out" != "code=true" && "$out" != "code=false" ]]; then
+            echo "::warning::ci-changes printed '$out'; running everything"
+            exit 1
+          fi
+          echo "$out" | tee -a "$GITHUB_OUTPUT"
+          echo "Classifier: \`$out\`" >> "$GITHUB_STEP_SUMMARY"
+
   build-linux:
+    needs: changes
+    timeout-minutes: 25
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: ubuntu-22.04
     steps:
       - name: ci/checkout-repo
@@ -50,6 +89,9 @@ jobs:
           retention-days: 10 ## No need to keep CI builds more than 10 days
 
   windows-install-deps:
+    needs: changes
+    timeout-minutes: 15
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: windows-2022
     steps:
       - name: ci/checkout-repo
@@ -81,8 +123,11 @@ jobs:
           npm ci --openssl_fips=''
 
   build-win-no-installer:
+    timeout-minutes: 30
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' && needs.windows-install-deps.result != 'failure' }}
     runs-on: windows-2022
     needs:
+      - changes
       - windows-install-deps
     steps:
       - name: ci/checkout-repo
@@ -138,6 +183,9 @@ jobs:
           retention-days: 10 ## No need to keep CI builds more than 10 days
 
   build-mac-no-dmg:
+    needs: changes
+    timeout-minutes: 20
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: macos-15
     env:
       MACOS_NOTIFICATION_STATE_NO_SDK_CHECK: true
@@ -186,8 +234,10 @@ jobs:
           retention-days: 10 ## No need to keep CI builds more than 10 days
 
   report-test-results:
-    if: always()
+    if: ${{ always() && needs.changes.outputs.code != 'false' }}
+    timeout-minutes: 10
     needs:
+      - changes
       - build-mac-no-dmg
       - build-win-no-installer
       - build-linux
