@@ -16,6 +16,8 @@
     "url": "git://github.com/mattermost/desktop.git"
   },
   "scripts": {
+    "verify": "npm run lint:js-quiet && npm run check-types && npm run i18n-extract -- --desktop-dir . && git --no-pager diff --exit-code i18n/en.json && npm run test:unit",
+    "hooks:install": "git config core.hooksPath .githooks",
     "postinstall": "patch-package && electron-builder install-app-deps",
     "clean": "rm -rf release/ node_modules/ src/node_modules/ dist/ && cd e2e && npm run clean && cd -",
     "clean-install": "npm run clean && npm install",

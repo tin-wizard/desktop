@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Runs CI's gate before a push when the pushed commits need it, so a failure costs no
+# Actions minutes. Install once: npm run hooks:install. Skip once: git push --no-verify.
+# CI still runs and stays the authority; the OS builds only run there.
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+upstream="$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || echo origin/master)"
+if base="$(git merge-base "$upstream" HEAD 2>/dev/null)"; then
+  files="$(git diff --name-only "$base" HEAD)"
+else
+  files='*'
+fi
+
+code=true
+eval "$(printf '%s\n' "$files" | bash scripts/ci-changes.sh)"
+bash scripts/ci-changes.test.sh >/dev/null
+
+if [[ "$code" == true ]]; then
+  echo "pre-push: running npm run verify (lint, types, i18n, unit tests)"
+  npm run verify
+else
+  echo "pre-push: docs or workflow change only; CI will skip the builds too"
+fi

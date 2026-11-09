@@ -12,8 +12,13 @@ defaults:
 env:
   TERM: xterm
 
+concurrency:
+  group: build-for-pr-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-linux-for-pr:
+    timeout-minutes: 25
     runs-on: ubuntu-22.04
     if: ${{ github.event.label.name == 'Build Apps for PR' }}
     steps:
@@ -48,6 +53,7 @@ jobs:
           retention-days: 10 ## No need to keep CI builds more than 10 days
 
   windows-install-deps:
+    timeout-minutes: 15
     runs-on: windows-2022
     if: ${{ github.event.label.name == 'Build Apps for PR' }}
     steps:
@@ -78,6 +84,7 @@ jobs:
         run: npm ci --openssl_fips=''
 
   build-win-for-pr:
+    timeout-minutes: 30
     runs-on: windows-2022
     if: ${{ github.event.label.name == 'Build Apps for PR' }}
     needs:
@@ -136,6 +143,7 @@ jobs:
           retention-days: 10 ## No need to keep CI builds more than 10 days
 
   build-mac-for-pr:
+    timeout-minutes: 25
     runs-on: macos-15
     env:
       MACOS_NOTIFICATION_STATE_NO_SDK_CHECK: true
