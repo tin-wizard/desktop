@@ -249,6 +249,16 @@ jobs:
             gh release create ${PRERELEASE} --verify-tag -F release-notes.md --target "${GITHUB_SHA}" --title "${RELEASE_TITLE}" "${GITHUB_REF_NAME}"
           fi
 
+      # The code repo is private; staff download from this public, installers-only repo.
+      - name: release/publish-to-public-releases-repo
+        env:
+          GH_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+        run: |
+          VERSION=$(jq -r .version package.json)
+          RELEASE_TITLE="v${VERSION} ($(date -u "+%Y-%m-%d"))"
+          [[ $VERSION =~ "-rc" ]] && PRERELEASE="--prerelease"
+          gh release create ${PRERELEASE} -R tin-wizard/tin-connect-releases -F release-notes.md --target main --title "${RELEASE_TITLE}" "${GITHUB_REF_NAME}" ./ghr-dist/*
+
   end-notification:
     runs-on: ubuntu-22.04
     needs:
